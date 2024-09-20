@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -56,6 +58,31 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  int _progress = 0;
+  List widgets = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // 实现一个异步方法，模仿接口请求3秒延迟后更新当前state
+    loadData();
+  }
+
+  Future loadData() async {
+    while (_progress < 100) {
+      print("test cjl");
+      await Future.delayed(const Duration(seconds: 1));
+      int step = Random().nextInt(10) + 10;
+      setState(() {
+        _progress += step;
+        print("step = $step,progress:$_progress");
+      });
+    }
+    _progress = 100;
+    setState(() {
+      widgets = ["1", "2c", "3j", "4l", "5", "6", "7"];
+    });
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -81,6 +108,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var name = 'Voyager I';
+    var year = 1977;
+    var antennaDiameter = 3.7;
+    var flybyObjects = ['Jupiter', 'Saturn', 'Uranus', 'Neptune'];
+    var image = {
+      'tags': ['saturn'],
+      'url': '//path/to/saturn.jpg'
+    };
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -100,30 +135,9 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: [getBody(), btnCountTouch(context)],
         ),
       ),
       floatingActionButton: Column(
@@ -142,6 +156,54 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Column btnCountTouch(BuildContext context) {
+    return Column(
+      // Column is also a layout widget. It takes a list of children and
+      // arranges them vertically. By default, it sizes itself to fit its
+      // children horizontally, and tries to be as tall as its parent.
+      //
+      // Column has various properties to control how it sizes itself and
+      // how it positions its children. Here we use mainAxisAlignment to
+      // center the children vertically; the main axis here is the vertical
+      // axis because Columns are vertical (the cross axis would be
+      // horizontal).
+      //
+      // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
+      // action in the IDE, or press "p" in the console), to see the
+      // wireframe for each widget.
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        const Text(
+          'You have pushed the button this many times:',
+        ),
+        Text(
+          '$_counter',
+          style: Theme.of(context).textTheme.headlineMedium,
+        ),
+      ],
+    );
+  }
+
+  Widget getBody() {
+    if (widgets.isEmpty) {
+      return LinearProgressIndicator(
+          value: _progress / 100, backgroundColor: Colors.red);
+    } else {
+      return ListView.builder(
+        itemCount: widgets.length,
+        itemBuilder: buildItemWidget,
+      );
+    }
+  }
+
+  Widget? buildItemWidget(_, index) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text("index = $index,data : ${widgets[index]}",
+          selectionColor: Colors.yellow),
     );
   }
 }
